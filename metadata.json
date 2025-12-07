@@ -1,0 +1,5 @@
+{
+  "name": "CodeWeaver AI",
+  "description": "An intelligent, zero-state online IDE for HTML, CSS, and JavaScript with an integrated context-aware AI tutor powered by Gemini.",
+  "requestFramePermissions": []
+}
