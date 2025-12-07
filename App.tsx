@@ -1,50 +1,74 @@
+
 import React, { useState } from 'react';
 import { CodeState, Language, ChatMessage } from './types';
 import { CodeEditor } from './components/CodeEditor';
 import { Preview } from './components/Preview';
 import { ChatPanel } from './components/ChatPanel';
+import { AssetLibrary } from './components/AssetLibrary';
 import { generateTutorResponse } from './services/geminiService';
-import { Code2, FileJson, FileType, Layout, Terminal, PanelLeft, PanelRight, Columns } from 'lucide-react';
+import { Code2, FileJson, FileType, Layout, Terminal, PanelLeft, PanelRight, Image as ImageIcon } from 'lucide-react';
 
 const INITIAL_CODE: CodeState = {
-  html: `<div class="container">
-  <h1>Hello World</h1>
-  <p>Welcome to CodeWeaver AI.</p>
-  <button id="clickMe">Click Me</button>
+  html: `<div class="game-container">
+  <h1>Robo Runner</h1>
+  <div id="player">
+    <img src="https://robohash.org/hero-robot?set=set1&size=200x200" alt="Player" />
+  </div>
+  <p>Press arrow keys to move!</p>
 </div>`,
   css: `body {
-  font-family: sans-serif;
-  background-color: #f0f4f8;
+  font-family: 'Courier New', monospace;
+  background-color: #1a1a1a;
+  color: white;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   margin: 0;
+  overflow: hidden;
 }
 
-.container {
+.game-container {
   text-align: center;
-  padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1000&q=80') center/cover;
 }
 
-button {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
+h1 {
+  text-shadow: 2px 2px 0 #000;
+  margin-top: 2rem;
 }
 
-button:hover {
-  background: #2563eb;
+#player {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.1s ease;
+}
+
+#player img {
+  width: 100px;
+  height: 100px;
+  filter: drop-shadow(0 0 10px rgba(0,255,255,0.5));
 }`,
-  javascript: `document.getElementById('clickMe').addEventListener('click', () => {
-  alert('You clicked the button! Try asking the AI to change what this button does.');
+  javascript: `const player = document.getElementById('player');
+let x = 50;
+let y = 50;
+
+// Simple movement logic
+document.addEventListener('keydown', (e) => {
+  const step = 2;
+  
+  if (e.key === 'ArrowUp') y -= step;
+  if (e.key === 'ArrowDown') y += step;
+  if (e.key === 'ArrowLeft') x -= step;
+  if (e.key === 'ArrowRight') x += step;
+  
+  player.style.left = x + '%';
+  player.style.top = y + '%';
 });`
 };
 
@@ -57,6 +81,7 @@ export default function App() {
   // Layout toggles
   const [isChatOpen, setIsChatOpen] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(true);
+  const [isAssetLibraryOpen, setIsAssetLibraryOpen] = useState(false);
 
   const handleCodeChange = (lang: Language, value: string) => {
     setCode(prev => ({ ...prev, [lang]: value }));
@@ -135,7 +160,15 @@ export default function App() {
         </div>
 
         {/* Right Controls */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+           <button 
+            onClick={() => setIsAssetLibraryOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium transition-colors mr-2 shadow-sm"
+          >
+            <ImageIcon size={14} />
+            <span className="hidden sm:inline">Assets</span>
+          </button>
+
            <button 
             onClick={() => setIsPreviewOpen(!isPreviewOpen)}
             className={`p-1.5 rounded-md transition-colors ${isPreviewOpen ? 'bg-blue-900/30 text-blue-400' : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'}`}
@@ -177,6 +210,12 @@ export default function App() {
           </aside>
         )}
       </main>
+
+      {/* Asset Library Modal */}
+      <AssetLibrary 
+        isOpen={isAssetLibraryOpen} 
+        onClose={() => setIsAssetLibraryOpen(false)} 
+      />
     </div>
   );
 }
